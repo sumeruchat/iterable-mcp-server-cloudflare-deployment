@@ -197,9 +197,11 @@ Add to your Claude Code/Cursor config:
 
 ### Environment Variables
 
+**Note:** Users provide their API keys via URL parameter (`?api_key=`) or header (`X-Iterable-Api-Key`) when connecting. Server-side environment variables are optional.
+
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ITERABLE_API_KEY` | ✅ | - | Your Iterable API key |
+| `ITERABLE_API_KEY` | ❌ | - | Optional fallback API key (users typically provide their own via URL/header) |
 | `ITERABLE_API_BASE_URL` | ❌ | `https://api.iterable.com` | API endpoint (use `https://api.eu.iterable.com` for EU) |
 | `ITERABLE_USER_PII` | ❌ | `false` | Enable tools that expose user PII |
 | `ITERABLE_ENABLE_WRITES` | ❌ | `false` | Enable tools that modify data |
