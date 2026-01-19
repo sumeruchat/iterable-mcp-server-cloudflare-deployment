@@ -66,7 +66,42 @@ Your server will be live at `https://iterable-mcp-server.your-account.workers.de
 curl https://iterable-mcp-server.your-account.workers.dev
 ```
 
-## Client Integration
+## Test Only (No Deployment Required)
+
+Want to test without deploying your own server? Use our public test instance:
+
+**Note:** Gemini web (gemini.google.com) does not support MCP servers yet. Use Gemini CLI or ChatGPT instead.
+
+### Gemini CLI
+
+Edit `~/.gemini/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "iterable": {
+      "httpUrl": "https://iterable-mcp-server.nodemaker.workers.dev/mcp?api_key=YOUR_ITERABLE_API_KEY"
+    }
+  }
+}
+```
+
+Replace `YOUR_ITERABLE_API_KEY` with your actual Iterable API key, then:
+
+```bash
+gemini
+# Ask: "What campaigns do I have in Iterable?"
+```
+
+### ChatGPT (Requires Pro)
+
+1. Enable **Developer Mode** in ChatGPT Settings
+2. Navigate to **Settings > Connectors > Create**
+3. Enter URL: `https://iterable-mcp-server.nodemaker.workers.dev/sse?api_key=YOUR_ITERABLE_API_KEY`
+4. Replace `YOUR_ITERABLE_API_KEY` with your actual key
+5. Test by asking: "List my Iterable campaigns"
+
+## Client Integration (Deploy Your Own)
 
 ### Gemini CLI (Primary Test Target)
 
