@@ -20,8 +20,8 @@ const MCP_SERVER_URL = process.env.MCP_SERVER_URL;
 const ITERABLE_TEST_EMAIL = process.env.ITERABLE_TEST_EMAIL;
 const ITERABLE_API_KEY = process.env.ITERABLE_API_KEY;
 
-// Session ID for testing - generate once and use for entire test suite
-const SESSION_ID = "test-session-" + Date.now();
+// Session ID - will be set after initialization
+let SESSION_ID: string | null = null;
 
 /**
  * Helper to create base headers for MCP requests
@@ -32,8 +32,8 @@ function createHeaders(includeSessionId: boolean = true): Record<string, string>
     "Accept": "application/json, text/event-stream",
   };
 
-  // Include session ID for proper session management
-  if (includeSessionId) {
+  // Include session ID if available and requested
+  if (includeSessionId && SESSION_ID) {
     headers["Mcp-Session-Id"] = SESSION_ID;
   }
 
@@ -92,6 +92,13 @@ async function initializeSession() {
     }),
   });
 
+  // Extract session ID from response header
+  const sessionId = response.headers.get("Mcp-Session-Id");
+  if (sessionId) {
+    SESSION_ID = sessionId;
+    console.log("Got session ID:", SESSION_ID);
+  }
+
   const text = await response.text();
   return parseSSE(text);
 }
@@ -121,7 +128,7 @@ async function warmUpSession() {
 async function invokeTool(toolName: string, params: Record<string, unknown> = {}) {
   const response = await fetch(`${MCP_SERVER_URL}/mcp`, {
     method: "POST",
-    headers: createHeaders(),
+    headers: createHeaders(true),
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
@@ -143,7 +150,7 @@ async function invokeTool(toolName: string, params: Record<string, unknown> = {}
 async function listTools() {
   const response = await fetch(`${MCP_SERVER_URL}/mcp`, {
     method: "POST",
-    headers: createHeaders(),
+    headers: createHeaders(true),
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
@@ -170,8 +177,12 @@ describe("MCP Tool Invocation Tests", () => {
       );
     }
 
-    // Note: We skip initialization because without session IDs,
-    // each request is independent and the server handles state internally
+    // Initialize the session before running tests
+    const initResult = await initializeSession();
+    if (initResult.error) {
+      throw new Error(`Failed to initialize session: ${JSON.stringify(initResult.error)}`);
+    }
+    console.log("Session initialized successfully");
   });
 
   describe("Tool Discovery", () => {
