@@ -76,11 +76,13 @@ Edit `~/.gemini/settings.json`:
 {
   "mcpServers": {
     "iterable": {
-      "httpUrl": "https://iterable-mcp-server.your-account.workers.dev/mcp"
+      "httpUrl": "https://iterable-mcp-server.your-account.workers.dev/mcp?api_key=YOUR_ITERABLE_API_KEY"
     }
   }
 }
 ```
+
+Replace `YOUR_ITERABLE_API_KEY` with your actual Iterable API key.
 
 Test:
 ```bash
