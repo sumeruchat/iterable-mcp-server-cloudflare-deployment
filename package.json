@@ -10,6 +10,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "integration": "node scripts/run-integration.js",
+    "integration:local": "node scripts/integration-local.js",
+    "integration:remote": "node scripts/integration-remote.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

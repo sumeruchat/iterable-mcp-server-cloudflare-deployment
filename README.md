@@ -230,10 +230,31 @@ wrangler secret put ITERABLE_ENABLE_WRITES
 npm run test
 ```
 
-### Integration Tests (requires deployed server)
+### Integration Tests
+
+#### Test Against Local Server
+
+Runs tests against a local `wrangler dev` server on a random port:
 
 ```bash
-# Run with API key as argument
+# Using environment variable
+export ITERABLE_API_KEY=your_iterable_api_key
+npm run integration:local
+
+# Or using command line argument
+npm run integration:local -- --api-key your_iterable_api_key
+```
+
+#### Test Against Deployed Server
+
+Two ways to test against the deployed Cloudflare Worker:
+
+```bash
+# Method 1: Using integration:remote
+export ITERABLE_API_KEY=your_iterable_api_key
+npm run integration:remote
+
+# Method 2: Using integration (shorthand)
 npm run integration -- --api-key your_iterable_api_key
 ```
 
