@@ -70,7 +70,7 @@ curl https://iterable-mcp-server.your-account.workers.dev
 
 ### Gemini CLI (Primary Test Target)
 
-Edit `~/.gemini/settings.json`:
+Edit `~/.gemini/settings.json` (or copy from `gemini-settings.json.example`):
 
 ```json
 {

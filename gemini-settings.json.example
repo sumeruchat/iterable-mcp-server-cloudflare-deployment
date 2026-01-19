@@ -1,0 +1,8 @@
+{
+  "$schema": "https://gemini-cli.dev/schema.json",
+  "mcpServers": {
+    "iterable": {
+      "httpUrl": "https://iterable-mcp-server.your-account.workers.dev/mcp?api_key=YOUR_ITERABLE_API_KEY"
+    }
+  }
+}
