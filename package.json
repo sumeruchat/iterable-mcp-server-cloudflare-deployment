@@ -1,0 +1,24 @@
+{
+  "name": "iterable-mcp-cloudflare",
+  "version": "1.0.0",
+  "description": "Iterable MCP Server for Cloudflare Workers - enables ChatGPT, Gemini CLI, and other web clients",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@iterable/api": "^0.5.2",
+    "@modelcontextprotocol/sdk": "^1.18.1",
+    "agents": "^0.0.98",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0",
+    "wrangler": "^4.0.0"
+  }
+}
