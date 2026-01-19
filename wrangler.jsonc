@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "iterable-mcp-server",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-01-15",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Default configuration: read-only, no PII, no sends
+  "vars": {
+    "ITERABLE_USER_PII": "false",
+    "ITERABLE_ENABLE_WRITES": "false",
+    "ITERABLE_ENABLE_SENDS": "false",
+    "ITERABLE_API_BASE_URL": "https://api.iterable.com"
+  },
+
+  // Durable Object bindings for MCP sessions
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MCP_OBJECT",
+        "class_name": "IterableMcpAgent",
+        "script_name": "iterable-mcp-server"
+      }
+    ]
+  },
+
+  // Migrations for Durable Objects with SQLite storage
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["IterableMcpAgent"]
+    }
+  ],
+
+  // Development settings
+  "dev": {
+    "port": 8788
+  }
+}

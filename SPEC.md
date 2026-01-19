@@ -10,7 +10,7 @@ From Slack discussion:
 - **Problem**: Iterable doesn't support web-based clients (ChatGPT, Gemini) because hosting the MCP server is an operational burden
 - **Solution**: Deploy to Cloudflare Workers - zero ops, auto-scaling, generous free tier (100k requests/day)
 - **Target Clients**: ChatGPT (most requested), Gemini CLI (primary test target)
-- **Authentication**: Greg mentions "more granular authentication scheme on the server separate from API keys" would be nice but may be out of scope for v1
+- **Authentication**: Greg Methvin mentions "more granular authentication scheme on the server separate from API keys" would be nice but may be out of scope for v1
 
 ---
 

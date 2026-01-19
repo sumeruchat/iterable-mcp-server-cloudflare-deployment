@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "integration": "node scripts/run-integration.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -17,6 +20,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250109.0",
+    "@vitest/coverage-v8": "^2.1.0",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0",
     "wrangler": "^4.0.0"

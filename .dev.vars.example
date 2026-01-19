@@ -1,0 +1,17 @@
+# Copy this to .dev.vars and fill in your values
+# Do NOT commit .dev.vars to version control
+
+# Your Iterable API key (required)
+ITERABLE_API_KEY=your_iterable_api_key_here
+
+# Optional: Enable user PII access (default: false)
+# ITERABLE_USER_PII=true
+
+# Optional: Enable write operations (default: false)
+# ITERABLE_ENABLE_WRITES=true
+
+# Optional: Enable message sends (default: false)
+# ITERABLE_ENABLE_SENDS=true
+
+# Optional: EU region (default: https://api.iterable.com)
+# ITERABLE_API_BASE_URL=https://api.eu.iterable.com
