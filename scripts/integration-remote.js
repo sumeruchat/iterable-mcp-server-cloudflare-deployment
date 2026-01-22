@@ -4,9 +4,29 @@
  * Run integration tests against deployed Cloudflare Worker
  *
  * Usage: npm run integration:remote -- --api-key YOUR_API_KEY
+ *    or: export ITERABLE_API_KEY=YOUR_API_KEY && npm run integration:remote
+ *    or: Add ITERABLE_API_KEY to .env file and npm run integration:remote
  */
 
 import { spawn } from 'child_process';
+import { readFileSync, existsSync } from 'fs';
+import { resolve } from 'path';
+
+// Load .env file if it exists
+const envPath = resolve(process.cwd(), '.env');
+if (existsSync(envPath)) {
+  const envContent = readFileSync(envPath, 'utf-8');
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('#')) {
+      const [key, ...valueParts] = trimmed.split('=');
+      const value = valueParts.join('=');
+      if (key && value && !process.env[key]) {
+        process.env[key] = value;
+      }
+    }
+  }
+}
 
 // Parse command line arguments
 const args = process.argv.slice(2);

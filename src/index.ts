@@ -13,20 +13,28 @@ import type { Env } from "./types/env.js";
 import { parseConfig } from "./types/env.js";
 
 /**
+ * Props passed to the agent via the agents framework
+ */
+interface AgentProps extends Record<string, unknown> {
+  apiKey?: string;
+}
+
+/**
  * Main MCP Agent for Iterable
  */
-export class IterableMcpAgent extends McpAgent<Env> {
+export class IterableMcpAgent extends McpAgent<Env, unknown, AgentProps> {
   server = new McpServer({
     name: "iterable-mcp",
     version: "1.0.0",
   });
 
   /**
-   * Get a client instance with the current API key from the environment.
-   * This ensures each request uses the correct API key.
+   * Get a client instance with the API key from props (set per-session).
+   * Falls back to environment variable if props not set.
    */
   private getClient(): IterableClient {
-    const apiKey = this.env.ITERABLE_API_KEY || "";
+    // Props are stored per-session by the agents framework
+    const apiKey = this.props?.apiKey || this.env.ITERABLE_API_KEY || "";
     return new IterableClient({
       apiKey,
       baseUrl: this.env.ITERABLE_API_BASE_URL || "https://api.iterable.com",
@@ -560,17 +568,18 @@ export default {
       );
     }
 
-    // Override environment with user's API key
-    const envWithKey = { ...env, ITERABLE_API_KEY: apiKey };
+    // Pass API key via props (agents framework stores this in DO)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (ctx as any).props = { apiKey: apiKey || undefined };
 
     // SSE transport (for backward compatibility)
     if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-      return IterableMcpAgent.serveSSE("/sse").fetch(request, envWithKey, ctx);
+      return IterableMcpAgent.serveSSE("/sse").fetch(request, env, ctx);
     }
 
     // Streamable HTTP transport (recommended)
     if (url.pathname === "/mcp") {
-      return IterableMcpAgent.serve("/mcp").fetch(request, envWithKey, ctx);
+      return IterableMcpAgent.serve("/mcp").fetch(request, env, ctx);
     }
 
     // Health check / info endpoint

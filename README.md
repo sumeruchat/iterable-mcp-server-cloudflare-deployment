@@ -5,137 +5,119 @@ Remote MCP server for Iterable that runs on Cloudflare Workers, enabling ChatGPT
 ## Features
 
 - ✅ **Remote MCP Server** - HTTP/SSE transport for web clients
-- ✅ **30+ Read Tools** - Campaigns, templates, users, lists, journeys, etc.
+- ✅ **23+ Read-Only Tools** - Campaigns, templates, users, lists, journeys, etc.
+- ✅ **Secure Authentication** - API key via headers (encrypted in transit)
 - ✅ **Permission Gating** - PII, write, and send restrictions
-- ✅ **Multi-tenant** - Per-request API keys or environment secrets
+- ✅ **Multi-tenant** - Each user provides their own API key
 - ✅ **Global Edge** - Deployed on Cloudflare's network
-- ✅ **Zero Ops** - No servers to maintain
 
-## Test Only (No Deployment Required)
+## Quick Start - Connect to Public Server
 
-Want to test without deploying your own server? Use our public test instance:
+No deployment required! Use our public server to get started immediately.
 
-**Note:** Gemini web (gemini.google.com) does not support MCP servers yet. Use Gemini CLI or ChatGPT instead.
+> **Important:** Gemini web (gemini.google.com) does **not** currently support custom MCP servers. Use **Gemini CLI** or **ChatGPT** instead.
 
-### Gemini CLI
+---
 
-Edit `~/.gemini/settings.json`:
+### Option 1: ChatGPT (Plus, Pro, Team, or Enterprise)
 
-```json
-{
-  "mcpServers": {
-    "iterable": {
-      "httpUrl": "https://iterable-mcp-server.nodemaker.workers.dev/mcp?api_key=YOUR_ITERABLE_API_KEY"
-    }
-  }
-}
-```
+ChatGPT supports MCP servers via Connectors in Developer Mode.
 
-Replace `YOUR_ITERABLE_API_KEY` with your actual Iterable API key, then:
+**Steps:**
 
+1. **Enable Developer Mode**
+   - Open [ChatGPT](https://chat.openai.com)
+   - Go to **Settings** (gear icon) → **Connectors** → **Advanced**
+   - Toggle on **Developer Mode**
+
+2. **Create a Connector**
+   - Click the **+** icon in the chat panel
+   - Select **Developer Mode** → **Add sources**
+   - Or go to **Settings** → **Connectors** → **Create**
+
+3. **Configure the Connector**
+   - **Name:** `Iterable`
+   - **Server URL:** `https://iterable-mcp-server.nodemaker.workers.dev/sse?api_key=YOUR_ITERABLE_API_KEY`
+   - Check ✅ **"I trust this provider"**
+   - Click **Create**
+
+4. **Use It**
+   - Start a new chat and select **Developer Mode** from the model dropdown
+   - Select your **Iterable** connector
+   - Ask: *"List my Iterable campaigns"*
+
+> **Note:** Replace `YOUR_ITERABLE_API_KEY` with your actual [Iterable API key](https://support.iterable.com/hc/en-us/articles/360043464871-API-Keys).
+
+---
+
+### Option 2: Gemini CLI
+
+Gemini CLI supports MCP servers with custom headers for secure authentication.
+
+**Steps:**
+
+1. **Install Gemini CLI** (if not already installed)
+   ```bash
+   npm install -g @anthropic-ai/gemini-cli
+   ```
+
+2. **Configure MCP Server**
+
+   Edit `~/.gemini/settings.json` (create if it doesn't exist):
+
+   ```json
+   {
+     "mcpServers": {
+       "iterable": {
+         "httpUrl": "https://iterable-mcp-server.nodemaker.workers.dev/mcp",
+         "headers": {
+           "X-Iterable-Api-Key": "YOUR_ITERABLE_API_KEY"
+         }
+       }
+     }
+   }
+   ```
+
+   Or use environment variable interpolation:
+
+   ```json
+   {
+     "mcpServers": {
+       "iterable": {
+         "httpUrl": "https://iterable-mcp-server.nodemaker.workers.dev/mcp",
+         "headers": {
+           "X-Iterable-Api-Key": "$ITERABLE_API_KEY"
+         }
+       }
+     }
+   }
+   ```
+
+   Then set the environment variable:
+   ```bash
+   export ITERABLE_API_KEY="your_actual_api_key"
+   ```
+
+3. **Use It**
+   ```bash
+   gemini
+   # Ask: "What campaigns do I have in Iterable?"
+   ```
+
+**Alternative: Add via Command Line**
 ```bash
-gemini
-# Ask: "What campaigns do I have in Iterable?"
+gemini mcp add iterable \
+  --http-url "https://iterable-mcp-server.nodemaker.workers.dev/mcp" \
+  --header "X-Iterable-Api-Key: YOUR_ITERABLE_API_KEY"
 ```
 
-### ChatGPT (Requires Pro)
+---
 
-1. Enable **Developer Mode** in ChatGPT Settings
-2. Navigate to **Settings > Connectors > Create**
-3. Enter URL: `https://iterable-mcp-server.nodemaker.workers.dev/sse?api_key=YOUR_ITERABLE_API_KEY`
-4. Replace `YOUR_ITERABLE_API_KEY` with your actual key
-5. Test by asking: "List my Iterable campaigns"
+### Option 3: Claude Desktop / Cursor (via mcp-remote)
 
-## Quick Start
+For Claude Desktop or Cursor, use the `mcp-remote` proxy:
 
-### 1. Install Dependencies
-
-```bash
-npm install
-```
-
-### 2. Configure API Key (Optional for Testing)
-
-For local development, you can optionally create `.dev.vars`:
-
-```bash
-cp .dev.vars.example .dev.vars
-# Edit and add: ITERABLE_API_KEY=your_test_key
-```
-
-**Note:** In production, users provide their OWN API keys when connecting (see Client Integration section).
-
-### 3. Run Locally
-
-```bash
-npm run dev
-```
-
-The server will start at `http://localhost:8788`
-
-### 4. Test with MCP Inspector
-
-In another terminal:
-
-```bash
-npx @modelcontextprotocol/inspector@latest
-```
-
-Open http://localhost:5173 and connect to `http://localhost:8788/mcp`
-
-## Deployment
-
-### Deploy to Cloudflare Workers
-
-```bash
-npm run deploy
-```
-
-Your server will be live at `https://iterable-mcp-server.your-account.workers.dev`
-
-**No API key needed on the server** - users provide their own keys when connecting!
-
-### Test Deployed Server
-
-```bash
-curl https://iterable-mcp-server.your-account.workers.dev
-```
-
-## Client Integration (Deploy Your Own)
-
-### Gemini CLI (Primary Test Target)
-
-Edit `~/.gemini/settings.json` (or copy from `gemini-settings.json.example`):
-
-```json
-{
-  "mcpServers": {
-    "iterable": {
-      "httpUrl": "https://iterable-mcp-server.your-account.workers.dev/mcp?api_key=YOUR_ITERABLE_API_KEY"
-    }
-  }
-}
-```
-
-Replace `YOUR_ITERABLE_API_KEY` with your actual Iterable API key.
-
-Test:
-```bash
-gemini
-# Ask: "What campaigns do I have in Iterable?"
-```
-
-### ChatGPT (Requires Pro)
-
-1. Enable **Developer Mode** in ChatGPT Settings
-2. Navigate to **Settings > Connectors > Create**
-3. Enter URL: `https://iterable-mcp-server.your-account.workers.dev/sse`
-4. Test by asking: "List my Iterable campaigns"
-
-### Claude Code / Cursor (via mcp-remote)
-
-Add to your Claude Code/Cursor config:
-
+**Claude Desktop** (`~/.claude/claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
@@ -143,22 +125,65 @@ Add to your Claude Code/Cursor config:
       "command": "npx",
       "args": [
         "mcp-remote",
-        "https://iterable-mcp-server.your-account.workers.dev/sse"
+        "https://iterable-mcp-server.nodemaker.workers.dev/sse",
+        "--header",
+        "X-Iterable-Api-Key: YOUR_ITERABLE_API_KEY"
       ]
     }
   }
 }
 ```
 
+**Cursor** (`.cursor/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "iterable": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://iterable-mcp-server.nodemaker.workers.dev/sse",
+        "--header",
+        "X-Iterable-Api-Key: YOUR_ITERABLE_API_KEY"
+      ]
+    }
+  }
+}
+```
+
+---
+
+## Authentication
+
+The server supports two methods for passing your Iterable API key:
+
+| Method | How to Use | Security |
+|--------|------------|----------|
+| **Header** | `X-Iterable-Api-Key: YOUR_KEY` | ✅ Encrypted in HTTPS |
+| **URL Parameter** | `?api_key=YOUR_KEY` | ⚠️ May appear in logs |
+
+**Recommendation:** Use headers when possible (Gemini CLI, Claude Desktop). Use URL parameters for ChatGPT (required by their connector format).
+
+### Security Considerations
+
+URL parameters can appear in:
+- Server access logs
+- Browser history
+- Proxy logs
+
+Headers are encrypted during HTTPS transit and are the more secure option when your client supports them.
+
+---
+
 ## Available Tools
 
-### Campaign Tools (9)
+### Campaign Tools
 - `get_campaigns` - List all campaigns with filtering
 - `get_campaign` - Get specific campaign details
 - `get_campaign_metrics` - Get campaign performance metrics
 - `get_child_campaigns` - Get child campaigns of recurring campaign
 
-### Template Tools (6)
+### Template Tools
 - `get_templates` - List all templates
 - `get_email_template` - Get email template by ID
 - `get_sms_template` - Get SMS template by ID
@@ -166,20 +191,20 @@ Add to your Claude Code/Cursor config:
 - `get_inapp_template` - Get in-app template by ID
 - `get_template_by_client_id` - Get template by client ID
 
-### User Tools (6)
-- `get_user_by_email` - Look up user by email
-- `get_user_by_user_id` - Look up user by user ID
+### User Tools
+- `get_user_by_email` - Look up user by email *(requires PII permission)*
+- `get_user_by_user_id` - Look up user by user ID *(requires PII permission)*
 - `get_user_fields` - Get all user data fields
-- `get_sent_messages` - Get messages sent to a user
-- `get_user_events_by_email` - Get user events by email
-- `get_user_events_by_user_id` - Get user events by user ID
+- `get_sent_messages` - Get messages sent to a user *(requires PII permission)*
+- `get_user_events_by_email` - Get user events *(requires PII permission)*
+- `get_user_events_by_user_id` - Get user events *(requires PII permission)*
 
-### List Tools (3)
+### List Tools
 - `get_lists` - Get all subscriber lists
 - `get_list_size` - Get user count in a list
-- `get_list_users` - Get users in a list
+- `get_list_users` - Get users in a list *(requires PII permission)*
 
-### Other Tools (10)
+### Other Tools
 - `get_channels` - Get message channels
 - `get_message_types` - Get message types
 - `get_journeys` - Get all journeys
@@ -191,139 +216,132 @@ Add to your Claude Code/Cursor config:
 - `get_catalog_items` - Get items from catalog
 - `get_catalog_item` - Get specific catalog item
 
-**Total: 34 read-only tools**
+---
+
+## Platform Support
+
+| Platform | Support | Auth Method | Notes |
+|----------|---------|-------------|-------|
+| **ChatGPT** | ✅ Full | URL parameter | Plus, Pro, Team, or Enterprise |
+| **Gemini CLI** | ✅ Full | Headers | Most secure option |
+| **Gemini Web** | ❌ None | - | Does not support custom MCP servers |
+| **Claude Desktop** | ✅ Via proxy | Headers | Use mcp-remote |
+| **Cursor** | ✅ Via proxy | Headers | Use mcp-remote |
+
+---
+
+## Deploy Your Own Server
+
+### 1. Clone and Install
+
+```bash
+git clone https://github.com/your-org/iterable-mcp-server-cloudflare
+cd iterable-mcp-server-cloudflare
+npm install
+```
+
+### 2. Run Locally
+
+```bash
+# Create .env file with your API key for testing
+echo 'ITERABLE_API_KEY=your_api_key' > .env
+
+# Start local server
+npm run dev
+```
+
+The server will start at `http://localhost:8788`
+
+### 3. Deploy to Cloudflare
+
+```bash
+npm run deploy
+```
+
+Your server will be live at `https://iterable-mcp-server.your-account.workers.dev`
+
+---
 
 ## Configuration
 
 ### Environment Variables
 
-**Note:** Users provide their API keys via URL parameter (`?api_key=`) or header (`X-Iterable-Api-Key`) when connecting. Server-side environment variables are optional.
-
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ITERABLE_API_KEY` | ❌ | - | Optional fallback API key (users typically provide their own via URL/header) |
-| `ITERABLE_API_BASE_URL` | ❌ | `https://api.iterable.com` | API endpoint (use `https://api.eu.iterable.com` for EU) |
+| `ITERABLE_API_BASE_URL` | ❌ | `https://api.iterable.com` | Use `https://api.eu.iterable.com` for EU |
 | `ITERABLE_USER_PII` | ❌ | `false` | Enable tools that expose user PII |
 | `ITERABLE_ENABLE_WRITES` | ❌ | `false` | Enable tools that modify data |
 | `ITERABLE_ENABLE_SENDS` | ❌ | `false` | Enable tools that send messages |
 
 ### Security Defaults
 
-By default, the server is configured in **safe read-only mode**:
+By default, the server runs in **safe read-only mode**:
 - ❌ No user PII exposure
 - ❌ No write operations
 - ❌ No message sends
 
-To enable elevated capabilities:
+To enable elevated capabilities on your own deployment:
 
 ```bash
 wrangler secret put ITERABLE_USER_PII
 # Enter: true
-
-wrangler secret put ITERABLE_ENABLE_WRITES
-# Enter: true
 ```
+
+---
 
 ## Testing
 
-### Unit Tests
-
 ```bash
-npm run test
-```
+# Unit tests
+npm test
 
-### Integration Tests
-
-#### Test Against Local Server
-
-Runs tests against a local `wrangler dev` server on a random port:
-
-```bash
-# Using environment variable
-export ITERABLE_API_KEY=your_iterable_api_key
+# Integration tests (local)
+echo 'ITERABLE_API_KEY=your_api_key' > .env
 npm run integration:local
 
-# Or using command line argument
-npm run integration:local -- --api-key your_iterable_api_key
-```
-
-#### Test Against Deployed Server
-
-Two ways to test against the deployed Cloudflare Worker:
-
-```bash
-# Method 1: Using integration:remote
-export ITERABLE_API_KEY=your_iterable_api_key
+# Integration tests (remote)
 npm run integration:remote
-
-# Method 2: Using integration (shorthand)
-npm run integration -- --api-key your_iterable_api_key
 ```
 
-### Type Checking
-
-```bash
-npm run typecheck
-```
-
-## Architecture
-
-This server is a **remote MCP server** that:
-
-1. Runs on Cloudflare Workers (global edge network)
-2. Uses native `fetch()` instead of axios (Workers-compatible)
-3. Imports Zod schemas from `@iterable/api` for validation
-4. Exposes tools via HTTP (`/mcp`) and SSE (`/sse`) transports
-5. Filters tools based on permission configuration
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed design decisions.
-
-## Comparison with Official MCP Server
-
-| Feature | @iterable/mcp (local) | This Server (remote) |
-|---------|----------------------|---------------------|
-| Runtime | Node.js 20+ | Cloudflare Workers |
-| Transport | stdio | HTTP/SSE |
-| Deployment | `npx @iterable/mcp` | `wrangler deploy` |
-| Clients | Claude Desktop, Cursor | ChatGPT, Gemini CLI, Claude (via proxy) |
-| Cold Start | ~500ms | ~5ms |
-| Distribution | Local only | Global edge |
-| Multi-tenant | No | Yes (per-request keys) |
+---
 
 ## Troubleshooting
 
 ### "API key required" error
 
-Make sure you've set the API key:
+Make sure you're passing the API key:
 
 ```bash
-# For local dev
-echo 'ITERABLE_API_KEY="your_key"' > .dev.vars
+# Via header (recommended)
+curl -H 'X-Iterable-Api-Key: YOUR_KEY' \
+  https://iterable-mcp-server.nodemaker.workers.dev/mcp
 
-# For production
-wrangler secret put ITERABLE_API_KEY
+# Via URL parameter
+curl 'https://iterable-mcp-server.nodemaker.workers.dev/mcp?api_key=YOUR_KEY'
 ```
 
-### "Tool not available" error
+### ChatGPT says "Server rejected"
 
-Check your permission settings. Some tools require elevated permissions:
+1. Make sure Developer Mode is enabled
+2. Verify your URL includes the API key: `...?api_key=YOUR_KEY`
+3. Check that you're using the `/sse` endpoint for ChatGPT
 
-- User PII tools: `ITERABLE_USER_PII=true`
-- Write tools: `ITERABLE_ENABLE_WRITES=true`
-- Send tools: `ITERABLE_ENABLE_SENDS=true`
+### Gemini CLI not connecting
+
+1. Validate your `settings.json` is valid JSON (no trailing commas)
+2. Check the file location: `~/.gemini/settings.json`
+3. Verify your API key is correct
 
 ### EU Region
 
-If your Iterable account is in the EU region:
+If your Iterable account is in the EU region, deploy your own server:
 
 ```bash
 wrangler secret put ITERABLE_API_BASE_URL
 # Enter: https://api.eu.iterable.com
 ```
 
-## Contributing
-
-See [SPEC.md](./SPEC.md) for the full specification and [ARCHITECTURE.md](./ARCHITECTURE.md) for design details.
+---
 
 ## License
 
@@ -332,5 +350,10 @@ MIT
 ## Credits
 
 - Based on [@iterable/mcp](https://github.com/Iterable/mcp-server) by Greg Methvin
-- Uses [@iterable/api](https://github.com/Iterable/api-client) for Zod schemas
 - Built with [Cloudflare Agents SDK](https://developers.cloudflare.com/agents/)
+
+## References
+
+- [OpenAI MCP Documentation](https://platform.openai.com/docs/guides/tools-connectors-mcp)
+- [Gemini CLI MCP Server Docs](https://geminicli.com/docs/tools/mcp-server/)
+- [Iterable API Documentation](https://api.iterable.com/api/docs)
