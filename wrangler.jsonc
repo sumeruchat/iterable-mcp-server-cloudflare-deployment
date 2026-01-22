@@ -5,11 +5,11 @@
   "compatibility_date": "2025-01-15",
   "compatibility_flags": ["nodejs_compat"],
 
-  // All features enabled for demo
+  // Read-only with PII enabled for demo
   "vars": {
     "ITERABLE_USER_PII": "true",
-    "ITERABLE_ENABLE_WRITES": "true",
-    "ITERABLE_ENABLE_SENDS": "true",
+    "ITERABLE_ENABLE_WRITES": "false",
+    "ITERABLE_ENABLE_SENDS": "false",
     "ITERABLE_API_BASE_URL": "https://api.iterable.com"
   },
 
